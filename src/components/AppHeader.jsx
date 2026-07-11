@@ -1,4 +1,5 @@
 import React, { useRef } from 'react'
+import logoWhiteBack from '../assets/logoWhiteBack.png'
 import { Icon } from './Icons'
 
 export function AppHeader({
@@ -29,7 +30,7 @@ export function AppHeader({
   return (
     <header className="app-header">
       <div className="brand-lockup">
-        <img src="src\assets\logoWhiteBack.png" alt="Logo" className="brand-mark" />
+        <img src={logoWhiteBack} alt="Logo" className="brand-mark" />
         <span className="brand-name">{eventName || 'Lazada Mundialista'}</span>
       </div>
 
