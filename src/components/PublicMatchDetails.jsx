@@ -99,7 +99,7 @@ export function PublicMatchDetails({
       <header className="public-detail-header">
         <div>
           <span>{round.name} · Match {match.matchIndex + 1}</span>
-          <h1>Carta del match</h1>
+          <h1>Info del match</h1>
         </div>
         <div className="public-detail-nav">
           <button aria-label="Match anterior" onClick={onPrevious} type="button"><Icon name="chevronLeft" /></button>
