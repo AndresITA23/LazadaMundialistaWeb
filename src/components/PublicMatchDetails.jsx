@@ -77,6 +77,7 @@ export function PublicMatchDetails({
   const visibleWinnerId = match.score.winnerId ?? automaticWinnerId
   const winner = findTeam(tournament, match.score.winnerId)
   const projectedWinner = findTeam(tournament, !winner && allRunsComplete ? automaticWinnerId : null)
+  const thirdPlaceMatch = round.kind === 'thirdPlace'
 
   const runRows = useMemo(
     () => Array.from({ length: 3 }, (_, index) => ({
@@ -145,7 +146,13 @@ export function PublicMatchDetails({
           <div className={winner || projectedWinner ? 'public-winner-card visible' : 'public-winner-card'}>
             <Icon name="trophy" size={26} />
             <div>
-              <span>{winner ? 'Avanza' : projectedWinner ? 'Posible ganador' : 'Pendiente'}</span>
+              <span>
+                {winner
+                  ? (thirdPlaceMatch ? '3er lugar' : 'Avanza')
+                  : projectedWinner
+                    ? (thirdPlaceMatch ? 'Posible 3er lugar' : 'Posible ganador')
+                    : 'Pendiente'}
+              </span>
               <strong>{winner?.name ?? projectedWinner?.name ?? 'Completa los lazos'}</strong>
             </div>
           </div>

@@ -89,6 +89,7 @@ export function MatchPanel({
   const complete = isMatchComplete(match)
   const ready = isMatchReady(match)
   const needsDecision = allRunsComplete && !automaticWinnerId
+  const thirdPlaceMatch = round.kind === 'thirdPlace'
   const runEntries = useMemo(
     () => Array.from({ length: 3 }, (_, index) => [
       { side: 'a', run: match.score.a[index], index },
@@ -148,7 +149,7 @@ export function MatchPanel({
           {needsDecision ? (
             <div className="manual-winner" role="group" aria-label="Desempate manual">
               <strong>El resultado requiere decisión manual</strong>
-              <span>Elige quién avanza:</span>
+              <span>{thirdPlaceMatch ? 'Elige quién queda en 3er lugar:' : 'Elige quién avanza:'}</span>
               <div>
                 <button
                   className={manualWinnerId === match.teamAId ? 'selected' : ''}
@@ -166,7 +167,7 @@ export function MatchPanel({
 
           <div className={winner ? 'winner-callout visible' : 'winner-callout'} aria-live="polite">
             <Icon name="trophy" size={30} />
-            <span>{winner ? `Avanza ${winner.name}` : 'Completa los seis lazos'}</span>
+            <span>{winner ? (thirdPlaceMatch ? `3er lugar: ${winner.name}` : `Avanza ${winner.name}`) : 'Completa los seis lazos'}</span>
           </div>
 
           <div className="match-actions">

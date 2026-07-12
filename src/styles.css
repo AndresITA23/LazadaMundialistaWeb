@@ -156,7 +156,7 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 }
 
 .public-workspace .bracket-canvas {
-  grid-template-columns: repeat(5, minmax(205px, 1fr));
+  grid-template-columns: repeat(6, minmax(205px, 1fr));
   padding-bottom: 36px;
 }
 
@@ -242,7 +242,7 @@ button:focus-visible, input:focus-visible, select:focus-visible {
   min-height: 0;
   flex: 1 1 auto;
   display: grid;
-  grid-template-columns: repeat(5, 190px);
+  grid-template-columns: repeat(6, 190px);
   gap: 22px;
   padding: 10px 22px 32px;
   overflow: auto;
@@ -258,6 +258,7 @@ button:focus-visible, input:focus-visible, select:focus-visible {
 .round-2 .match-stack { padding-top: 105px; gap: 243px; }
 .round-3 .match-stack { padding-top: 273px; gap: 579px; }
 .round-4 .match-stack { padding-top: 609px; }
+.round-5 .match-stack { padding-top: 609px; }
 
 .bracket-match {
   height: 58px;

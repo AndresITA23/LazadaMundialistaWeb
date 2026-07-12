@@ -5,7 +5,8 @@ export const ROUND_DEFINITIONS = [
   { name: 'Octavos', shortName: 'OCT', count: 8 },
   { name: 'Cuartos', shortName: 'C4', count: 4 },
   { name: 'Semifinal', shortName: 'SF', count: 2 },
-  { name: 'Final', shortName: 'F', count: 1 },
+  { name: '3er Lugar', shortName: '3L', count: 1, kind: 'thirdPlace' },
+  { name: 'Final', shortName: 'F', count: 1, kind: 'final' },
 ]
 
 const emptyRun = () => ({ time: '', noTime: false })
@@ -92,12 +93,43 @@ export function resetMatch(match) {
   return { ...match, score: emptyScore() }
 }
 
+function getMatchLoserId(match) {
+  if (!match?.score?.winnerId) return null
+  if (match.score.winnerId === match.teamAId) return match.teamBId ?? null
+  if (match.score.winnerId === match.teamBId) return match.teamAId ?? null
+  return null
+}
+
 export function recalculateBracket(tournament) {
   const next = structuredClone(tournament)
 
   for (let roundIndex = 1; roundIndex < next.rounds.length; roundIndex += 1) {
+    const round = next.rounds[roundIndex]
+
+    if (round.kind === 'thirdPlace') {
+      const semifinalRound = next.rounds.find((candidate) => candidate.shortName === 'SF')
+      const [match] = round.matches
+      const expectedA = getMatchLoserId(semifinalRound?.matches?.[0])
+      const expectedB = getMatchLoserId(semifinalRound?.matches?.[1])
+      const participantChanged = match.teamAId !== expectedA || match.teamBId !== expectedB
+      const updated = { ...match, teamAId: expectedA, teamBId: expectedB }
+      round.matches = [participantChanged ? resetMatch(updated) : updated]
+      continue
+    }
+
+    if (round.kind === 'final') {
+      const semifinalRound = next.rounds.find((candidate) => candidate.shortName === 'SF')
+      const [match] = round.matches
+      const expectedA = semifinalRound?.matches?.[0]?.score.winnerId ?? null
+      const expectedB = semifinalRound?.matches?.[1]?.score.winnerId ?? null
+      const participantChanged = match.teamAId !== expectedA || match.teamBId !== expectedB
+      const updated = { ...match, teamAId: expectedA, teamBId: expectedB }
+      round.matches = [participantChanged ? resetMatch(updated) : updated]
+      continue
+    }
+
     const previousMatches = next.rounds[roundIndex - 1].matches
-    next.rounds[roundIndex].matches = next.rounds[roundIndex].matches.map((match, index) => {
+    round.matches = round.matches.map((match, index) => {
       const expectedA = previousMatches[index * 2]?.score.winnerId ?? null
       const expectedB = previousMatches[index * 2 + 1]?.score.winnerId ?? null
       const participantChanged = match.teamAId !== expectedA || match.teamBId !== expectedB
@@ -136,7 +168,7 @@ export function normalizeImportedTournament(value) {
   if (!Array.isArray(value.teams) || value.teams.length !== 32) {
     throw new Error('El archivo debe contener exactamente 32 parejas.')
   }
-  if (!Array.isArray(value.rounds) || value.rounds.length !== ROUND_DEFINITIONS.length) {
+  if (!Array.isArray(value.rounds) || value.rounds.length < ROUND_DEFINITIONS.length - 1) {
     throw new Error('La estructura de rondas del archivo no es válida.')
   }
 
@@ -153,7 +185,9 @@ export function normalizeImportedTournament(value) {
   normalized.rounds = normalized.rounds.map((round, roundIndex) => ({
     ...round,
     matches: round.matches.map((fallback, matchIndex) => {
-      const source = value.rounds[roundIndex]?.matches?.[matchIndex] ?? fallback
+      const sourceRound = value.rounds.find((candidate) => candidate.shortName === round.shortName)
+        ?? value.rounds[roundIndex]
+      const source = sourceRound?.matches?.[matchIndex] ?? fallback
       return {
         ...fallback,
         teamAId: source.teamAId ?? null,
